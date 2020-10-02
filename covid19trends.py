@@ -9,16 +9,17 @@ import matplotlib.pyplot as plt
 states = pd.read_csv("states.csv")
 
 # Use dirty hacks to extract dates and cases
-def get_state_data(state):
-    state = state.replace(" ", "-")
+def get_state_data(state0):
+    state = state0.replace(" ", "-")
+    print(state0)
     state_data = requests.get(f"https://www.worldometers.info/coronavirus/usa/{state}/")
     text = bs4.BeautifulSoup(state_data.text, "lxml")
-    data = text.find("h3", text=f"Daily New Cases in {state}").next_sibling.next_sibling.next_sibling.next_sibling.string
+    data = text.find("h3", text=f"Daily New Cases in {state0}").next_sibling.next_sibling.next_sibling.next_sibling.string
     
     dates = json.loads(data[data.find("categories:") + 12: data.find("yAxis:") - 14])
     cases = json.loads(data[data.find("data:") + 6: data.find("3-day moving average")-44])
     
-    data_d = text.find("h3", text=f"Daily New Deaths in {state}").next_sibling.next_sibling.next_sibling.next_sibling.string
+    data_d = text.find("h3", text=f"Daily New Deaths in {state0}").next_sibling.next_sibling.next_sibling.next_sibling.string
     deaths = json.loads(data_d[data_d.find("data:") + 6: data_d.find("3-day moving average") - 44])
     df = pd.DataFrame({"cases": cases, "deaths": deaths}, index=dates)
     df.index = pd.DatetimeIndex(df.index+", 2020")
